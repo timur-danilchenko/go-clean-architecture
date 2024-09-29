@@ -1,0 +1,6 @@
+services:
+  app:
+    build: .
+    image: project
+    ports:
+      - "8080:8080"
