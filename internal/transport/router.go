@@ -11,8 +11,8 @@ func GreetingsHandler(w http.ResponseWriter, r *http.Request) {
 func SetUserTransport(router *http.ServeMux, userTransport *UserTransport) {
 	userRouter := http.NewServeMux()
 
-	userRouter.HandleFunc("/new", userTransport.CreateUserHandler)
+	userRouter.HandleFunc("/", userTransport.CreateUserHandler)
 	userRouter.HandleFunc("/{id}", userTransport.GetUserHandlerByID)
 
-	router.Handle("/user/", http.StripPrefix("/user", userRouter))
+	router.Handle("/users/", http.StripPrefix("/users", userRouter))
 }
