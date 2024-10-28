@@ -7,6 +7,8 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/lpernett/godotenv"
@@ -45,7 +47,8 @@ func main() {
 	}
 	defer db.Close()
 
-	conn, err := db.Conn(context.Background())
+	ctx := context.Background()
+	conn, err := db.Conn(ctx)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -68,5 +71,13 @@ func main() {
 	}
 
 	log.Println("Server start on port:", port)
-	server.ListenAndServe()
+	go func() {
+		server.ListenAndServe()
+	}()
+
+	signalChan := make(chan os.Signal, 1)
+	signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM)
+
+	<-signalChan
+	server.Shutdown(ctx)
 }
