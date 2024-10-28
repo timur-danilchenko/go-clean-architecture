@@ -1,12 +1,12 @@
 package service
 
 import (
+	dtorepository "github.com/timur-danilchenko/project/internal/dto/repository"
 	dtoservice "github.com/timur-danilchenko/project/internal/dto/service"
-	dtotransport "github.com/timur-danilchenko/project/internal/dto/transport"
 )
 
-func mapCreateUserRequest(data dtotransport.CreateUserRequest) dtoservice.CreateUserRequest {
-	return dtoservice.CreateUserRequest{
+func mapCreateUserRequest(data dtoservice.CreateUserRequest) dtorepository.CreateUserRequest {
+	return dtorepository.CreateUserRequest{
 		FirstName: data.FirstName,
 		LastName:  data.LastName,
 		Email:     data.Email,
@@ -14,20 +14,20 @@ func mapCreateUserRequest(data dtotransport.CreateUserRequest) dtoservice.Create
 	}
 }
 
-func mapCreateUserResponse(data dtoservice.CreateUserResponse) dtotransport.CreateUserResponse {
-	return dtotransport.CreateUserResponse{
+func mapCreateUserResponse(data dtorepository.CreateUserResponse) dtoservice.CreateUserResponse {
+	return dtoservice.CreateUserResponse{
 		ID: data.ID,
 	}
 }
 
-func mapGetUserByIDRequest(data dtotransport.GetUserByIDRequest) dtoservice.GetUserByIDRequest {
-	return dtoservice.GetUserByIDRequest{
+func mapGetUserByIDRequest(data dtoservice.GetUserByIDRequest) dtorepository.GetUserByIDRequest {
+	return dtorepository.GetUserByIDRequest{
 		ID: data.ID,
 	}
 }
 
-func mapGetUserByIDResponse(data dtoservice.GetUserByIDResponse) dtotransport.GetUserByIDResponse {
-	return dtotransport.GetUserByIDResponse{
+func mapGetUserByIDResponse(data dtorepository.GetUserByIDResponse) dtoservice.GetUserByIDResponse {
+	return dtoservice.GetUserByIDResponse{
 		ID:        data.ID,
 		FirstName: data.FirstName,
 		LastName:  data.LastName,

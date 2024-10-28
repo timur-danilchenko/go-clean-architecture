@@ -17,16 +17,17 @@ type UserTransport struct {
 }
 
 func (t *UserTransport) CreateUserHandler(w http.ResponseWriter, r *http.Request) {
-	var userReq dtotransport.CreateUserRequest
+	var data dtotransport.CreateUserRequest
 
-	if err := json.NewDecoder(r.Body).Decode(&userReq); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
 		log.Printf("[ERROR] %s\n", err.Error())
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("Can't decode JSON"))
 		return
 	}
 
-	userRes, err := t.Service.CreateUser(r.Context(), userReq)
+	mappedData := mapCreateUserRequest(data)
+	result, err := t.Service.CreateUser(r.Context(), mappedData)
 	if err != nil {
 		log.Printf("[ERROR] %s\n", err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
@@ -34,21 +35,22 @@ func (t *UserTransport) CreateUserHandler(w http.ResponseWriter, r *http.Request
 	}
 
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(userRes)
+	json.NewEncoder(w).Encode(result)
 }
 
 func (t *UserTransport) GetUserHandlerByID(w http.ResponseWriter, r *http.Request) {
-	var userReq dtotransport.GetUserByIDRequest
+	var data dtotransport.GetUserByIDRequest
 
-	userReq.ID = uuid.MustParse(strings.TrimPrefix(r.URL.Path, "/"))
+	data.ID = uuid.MustParse(strings.TrimPrefix(r.URL.Path, "/"))
 
-	userRes, err := t.Service.GetUserByID(r.Context(), userReq)
+	mappedData := mapGetUserByIDRequest(data)
+	result, err := t.Service.GetUserByID(r.Context(), mappedData)
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(fmt.Sprintf("No user with id{%s}", userReq.ID)))
+		w.Write([]byte(fmt.Sprintf("No user with id{%s}", data.ID)))
 	}
 
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(userRes)
+	json.NewEncoder(w).Encode(result)
 }

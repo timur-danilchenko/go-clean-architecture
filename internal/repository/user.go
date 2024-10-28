@@ -5,37 +5,42 @@ import (
 	"database/sql"
 
 	dtorepository "github.com/timur-danilchenko/project/internal/dto/repository"
-	dtoservice "github.com/timur-danilchenko/project/internal/dto/service"
 )
 
 type UserRepository struct {
 	Conn *sql.Conn
 }
 
-func (r *UserRepository) CreateUser(ctx context.Context, data dtoservice.CreateUserRequest) (dtoservice.CreateUserResponse, error) {
-	userReq := mapCreateUserRequest(data)
-	var userRes dtorepository.CreateUserResponse
+func (r *UserRepository) CreateUser(ctx context.Context, user dtorepository.CreateUserRequest) (dtorepository.CreateUserResponse, error) {
+	var result dtorepository.CreateUserResponse
 
 	query := `insert into users(first_name, last_name, email, phone) values (
 		$1, $2, $3, $4
 	) returning id;`
-
-	if err := r.Conn.QueryRowContext(ctx, query, userReq.FirstName, userReq.LastName, userReq.Email, userReq.Phone).Scan(&userRes.ID); err != nil {
-		return dtoservice.CreateUserResponse{}, err
+	params := []interface{}{
+		user.FirstName, user.LastName,
+		user.Email, user.Phone,
 	}
 
-	return mapCreateUserResponse(userRes), nil
+	err := r.Conn.QueryRowContext(ctx, query, params).Scan(&result.ID)
+	if err != nil {
+		return dtorepository.CreateUserResponse{}, err
+	}
+
+	return result, nil
 }
 
-func (r *UserRepository) GetUserByID(ctx context.Context, data dtoservice.GetUserByIDRequest) (dtoservice.GetUserByIDResponse, error) {
-	userReq := mapGetUserByIDRequest(data)
-	var userRes dtorepository.GetUserByIDResponse
+func (r *UserRepository) GetUserByID(ctx context.Context, user dtorepository.GetUserByIDRequest) (dtorepository.GetUserByIDResponse, error) {
+	var result dtorepository.GetUserByIDResponse
 
 	query := `select first_name, last_name, email, phone from users where id=$1;`
-	if err := r.Conn.QueryRowContext(ctx, query, userReq.ID).Scan(&userRes.FirstName, &userRes.LastName, &userRes.Email, &userRes.Phone); err != nil {
-		return dtoservice.GetUserByIDResponse{}, err
+	row := r.Conn.QueryRowContext(ctx, query, user.ID)
+
+	err := row.Scan(&result.FirstName, &result.LastName, &result.Email, &result.Phone)
+	if err != nil {
+		return dtorepository.GetUserByIDResponse{}, err
 	}
 
-	userRes.ID = userReq.ID
-	return mapGetUserByIDResponse(userRes), nil
+	result.ID = user.ID
+	return result, nil
 }
