@@ -11,23 +11,23 @@ type UserService struct {
 	Repository *repository.UserRepository
 }
 
-func (s *UserService) CreateUser(ctx context.Context, user dtoservice.CreateUserRequest) (dtoservice.CreateUserResponse, error) {
+func (s *UserService) CreateUser(ctx context.Context, user *dtoservice.CreateUserRequest) (*dtoservice.CreateUserResponse, error) {
 	userReq := mapCreateUserRequest(user)
 
 	userRes, err := s.Repository.CreateUser(ctx, userReq)
 	if err != nil {
-		return dtoservice.CreateUserResponse{}, err
+		return nil, err
 	}
 
 	return mapCreateUserResponse(userRes), nil
 }
 
-func (s *UserService) GetUserByID(ctx context.Context, user dtoservice.GetUserByIDRequest) (dtoservice.GetUserByIDResponse, error) {
+func (s *UserService) GetUserByID(ctx context.Context, user *dtoservice.GetUserByIDRequest) (*dtoservice.GetUserByIDResponse, error) {
 	userReq := mapGetUserByIDRequest(user)
 
 	userRes, err := s.Repository.GetUserByID(ctx, userReq)
 	if err != nil {
-		return dtoservice.GetUserByIDResponse{}, err
+		return nil, err
 	}
 
 	return mapGetUserByIDResponse(userRes), nil

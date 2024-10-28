@@ -11,8 +11,8 @@ type UserRepository struct {
 	Conn *sql.Conn
 }
 
-func (r *UserRepository) CreateUser(ctx context.Context, user dtorepository.CreateUserRequest) (dtorepository.CreateUserResponse, error) {
-	var result dtorepository.CreateUserResponse
+func (r *UserRepository) CreateUser(ctx context.Context, user *dtorepository.CreateUserRequest) (*dtorepository.CreateUserResponse, error) {
+	var result = &dtorepository.CreateUserResponse{}
 
 	query := `insert into users(first_name, last_name, email, phone) values (
 		$1, $2, $3, $4
@@ -22,23 +22,23 @@ func (r *UserRepository) CreateUser(ctx context.Context, user dtorepository.Crea
 		user.Email, user.Phone,
 	}
 
-	err := r.Conn.QueryRowContext(ctx, query, params).Scan(&result.ID)
+	err := r.Conn.QueryRowContext(ctx, query, params...).Scan(&result.ID)
 	if err != nil {
-		return dtorepository.CreateUserResponse{}, err
+		return nil, err
 	}
 
 	return result, nil
 }
 
-func (r *UserRepository) GetUserByID(ctx context.Context, user dtorepository.GetUserByIDRequest) (dtorepository.GetUserByIDResponse, error) {
-	var result dtorepository.GetUserByIDResponse
+func (r *UserRepository) GetUserByID(ctx context.Context, user *dtorepository.GetUserByIDRequest) (*dtorepository.GetUserByIDResponse, error) {
+	var result = &dtorepository.GetUserByIDResponse{}
 
 	query := `select first_name, last_name, email, phone from users where id=$1;`
 	row := r.Conn.QueryRowContext(ctx, query, user.ID)
 
 	err := row.Scan(&result.FirstName, &result.LastName, &result.Email, &result.Phone)
 	if err != nil {
-		return dtorepository.GetUserByIDResponse{}, err
+		return nil, err
 	}
 
 	result.ID = user.ID
