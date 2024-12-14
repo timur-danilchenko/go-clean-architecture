@@ -11,7 +11,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/lpernett/godotenv"
+	"github.com/timur-danilchenko/project/internal/app/config"
 	"github.com/timur-danilchenko/project/internal/repository"
 	"github.com/timur-danilchenko/project/internal/service"
 	"github.com/timur-danilchenko/project/internal/transport"
@@ -20,26 +20,13 @@ import (
 )
 
 func main() {
-	err := godotenv.Load()
+	conf, err := config.Setup()
+
 	if err != nil {
 		log.Fatal("Can't load environment variables")
 	}
 
-	port := os.Getenv("PORT")
-	if port == "" {
-		log.Fatal("Can't export PORT value from environment")
-	}
-
-	dbuser := os.Getenv("DB_USER")
-	if dbuser == "" {
-		log.Fatal("No username for database connection")
-	}
-	dbname := os.Getenv("DB_NAME")
-	if dbname == "" {
-		log.Fatal("No database name passed")
-	}
-
-	connStr := fmt.Sprintf("user=%s dbname=%s sslmode=disable", dbuser, dbname)
+	connStr := fmt.Sprintf("user=%s dbname=%s sslmode=disable", conf.DB_USER, conf.DB_NAME)
 
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
@@ -54,7 +41,7 @@ func main() {
 	}
 	defer conn.Close()
 
-	address := ":" + port
+	address := ":" + conf.PORT
 	router := http.NewServeMux()
 
 	userRepository := &repository.UserRepository{Conn: conn}
@@ -70,7 +57,7 @@ func main() {
 		MaxHeaderBytes: 1 << 20,
 	}
 
-	log.Println("Server start on port:", port)
+	log.Println("Server start on port:", conf.PORT)
 	go func() {
 		server.ListenAndServe()
 	}()
